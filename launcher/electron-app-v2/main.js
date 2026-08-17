@@ -1,11 +1,18 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron')
 const path = require('path')
+const { spawn } = require('child_process')
 const http = require('http')
+const fs = require('fs')
 
 const PORT = 3080
 const URL = `http://127.0.0.1:${PORT}`
 
+const HARNESS_ROOT = app.isPackaged
+  ? path.resolve(__dirname, '..', '..', '..', '..', '..')
+  : path.resolve(__dirname, '..', '..')
+
 let mainWindow = null
+let serverProcess = null
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -15,7 +22,6 @@ function createWindow() {
     minHeight: 600,
     title: 'DSH',
     show: false,
-    icon: path.join(__dirname, 'dist', 'icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -23,6 +29,7 @@ function createWindow() {
   })
 
   mainWindow.loadURL(URL)
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
     mainWindow.focus()
@@ -35,41 +42,36 @@ function createWindow() {
   })
 }
 
-function isServerRunning() {
-  return new Promise((resolve) => {
-    const req = http.get(URL, { timeout: 2000 }, (res) => {
-      resolve(res.statusCode === 200)
-      res.destroy()
+function startServer() {
+  const cliBin = path.join(HARNESS_ROOT, 'apps', 'cli', 'lib', 'bin.js')
+  if (fs.existsSync(cliBin)) {
+    serverProcess = spawn('node', [cliBin, '--profile', 'web'], {
+      cwd: HARNESS_ROOT,
+      stdio: 'ignore',
+      detached: true,
     })
-    req.on('error', () => resolve(false))
-    req.on('timeout', () => { req.destroy(); resolve(false) })
-  })
+    serverProcess.unref()
+  }
 }
 
 async function main() {
   await app.whenReady()
-
-  const alreadyRunning = await isServerRunning()
-  if (!alreadyRunning) {
-    // Server not running - try to start it
-    const { spawn } = require('child_process')
-    const fs = require('fs')
-    const harnessRoot = path.resolve(__dirname, '..', '..')
-    const cliBin = path.join(harnessRoot, 'apps', 'cli', 'lib', 'bin.js')
-
-    if (fs.existsSync(cliBin)) {
-      spawn('node', [cliBin, '--profile', 'web'], {
-        cwd: harnessRoot,
-        stdio: 'ignore',
+  startServer()
+  for (let i = 0; i < 30; i++) {
+    await new Promise(r => setTimeout(r, 1000))
+    try {
+      await new Promise((resolve, reject) => {
+        const req = http.get(URL, { timeout: 2000 }, (res) => {
+          if (res.statusCode === 200) resolve()
+          else reject(new Error('Not ready'))
+          res.destroy()
+        })
+        req.on('error', reject)
+        req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')) })
       })
-      // Wait for server
-      for (let i = 0; i < 30; i++) {
-        await new Promise(r => setTimeout(r, 1000))
-        if (await isServerRunning()) break
-      }
-    }
+      break
+    } catch {}
   }
-
   createWindow()
 
   ipcMain.handle('app:upgrade', () => {
