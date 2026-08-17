@@ -1,4 +1,4 @@
-CLAUDE.local.md
+﻿CLAUDE.local.md
 .env
 node_modules/
 lib/
@@ -38,3 +38,26 @@ apps/web/dist/
 worktrees/
 .agents/worktrees/
 .typert-*/
+
+# DSH Desktop
+launcher/electron-app-v2/node_modules/
+launcher/electron-app-v2/dist-electron/
+launcher/electron-app-v2/package-lock.json
+launcher/electron-app-v2/dist/
+launcher/node_modules/
+launcher/dist/
+launcher/dist-electron/
+launcher/package-lock.json
+launcher/*.log
+launcher/test-*
+launcher/main.js
+launcher/launcher.js
+launcher/*.bat
+launcher/*.ps1
+launcher/electron-main.js
+launcher/electron-package.json
+launcher/package-desktop.json
+launcher/version.txt
+launcher/electron-dist/
+launcher/electron-app/
+launcher/.DS_Store
