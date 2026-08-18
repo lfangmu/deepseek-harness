@@ -52,5 +52,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DSH-Windows-x64
-          path: launcher/electron-app-v2/dist-electron/*.exe
+          path: launcher/dist-electron/*.exe
           retention-days: 30
