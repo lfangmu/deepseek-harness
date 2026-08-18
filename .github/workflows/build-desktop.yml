@@ -24,7 +24,7 @@ jobs:
         run: npm install -g pnpm@8
 
       - name: Install root dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
         working-directory: .
 
       - name: Build library
