@@ -36,8 +36,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path "launcher/electron-app-v2/dist" -Force | Out-Null
           Copy-Item -Path "apps/web/dist/*" -Destination "launcher/electron-app-v2/dist/" -Recurse -Force
-          $pngBytes = [byte[]](137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,1,0,0,0,0,87,115,98,112,0,0,0,0,0,0,0,0,112,69,99,71,114,97,104,112,0,0,0,0,73,68,65,84,18,225,1,125,0,0,0,0,32,10,242,84,0,0,0,0,73,69,78,68,174,66,96,130)
-          [System.IO.File]::WriteAllBytes("launcher/electron-app-v2/dist/icon.png", $pngBytes)
+          Copy-Item -Path "launcher/electron-app-v2/dist/icon.png" -Destination "launcher/electron-app-v2/dist/icon.png" -Force -ErrorAction SilentlyContinue
 
       - name: Build Windows installer
         run: npx electron-builder --win --x64
