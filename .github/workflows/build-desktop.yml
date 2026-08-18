@@ -20,12 +20,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install root dependencies
-        run: pnpm install
-        working-directory: .
-
       - name: Build web frontend
-        run: pnpm run build:web
+        run: pnpm install && pnpm run build:web
         working-directory: .
 
       - name: Install Electron dependencies
@@ -36,7 +32,6 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path "launcher/electron-app-v2/dist" -Force | Out-Null
           Copy-Item -Path "apps/web/dist/*" -Destination "launcher/electron-app-v2/dist/" -Recurse -Force
-          Copy-Item -Path "launcher/electron-app-v2/dist/icon.png" -Destination "launcher/electron-app-v2/dist/icon.png" -Force -ErrorAction SilentlyContinue
 
       - name: Build Windows installer
         run: npx electron-builder --win --x64
