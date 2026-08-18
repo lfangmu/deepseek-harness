@@ -54,14 +54,3 @@ jobs:
           name: DSH-Windows-x64
           path: launcher/dist-electron/*.exe
           retention-days: 30
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: success()
-        with:
-          tag_name: v0.1.0
-          name: DSH Desktop v0.1.0
-          body: Windows x64 installer
-          files: launcher/dist-electron/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
