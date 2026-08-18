@@ -19,9 +19,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install root dependencies
         run: pnpm install
